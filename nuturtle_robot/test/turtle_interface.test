@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+	<!--Robot Description from URDF-->
+  	<rosparam file="$(find nuturtle_description)/config/diff_params.yaml" command="load"/>
+	<param name="robot_description" command="$(find xacro)/xacro $(find nuturtle_description)/urdf/diff_drive.urdf.xacro"/>  
+	<test test-name="turtle_interface_test" pkg="nuturtle_robot" type="turtle_interface_test" name="turtle_interface_test"/>
+</launch>

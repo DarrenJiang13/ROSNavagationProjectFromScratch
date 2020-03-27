@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- arg robot -->
+  	<arg name="robot" default="-1" doc="If robot is 0, turtlebot runs the code itself, else, code is run remotely from the computer"/>
+
+	<!--Robot Description from URDF-->
+  	<rosparam file="$(find nuturtle_description)/config/diff_params.yaml" command="load"/>
+
+	<!--Include basic_remote-->
+	<include file="$(find nuturtle_robot)/launch/basic_remote.launch">
+	  	<arg name="robot" value="$(arg robot)" />
+	</include>
+
+	<!--node turtle_interface-->
+	<node machine="computer" name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface"/>
+
+	<!--node real_point-->
+	<node machine="computer" name="real_waypoint" pkg="nuturtle_robot" type="real_waypoint" output="screen">
+	  	<rosparam param="waypoint_x">[0,0.304508,-0.5,-1.304508,-1]</rosparam>
+		<rosparam param="waypoint_y">[0,0.951056,1.5388417,0.951056,0]</rosparam>
+		<param name="frac_vel" type="double" value="0.5" />
+	</node>
+
+	<!--node fake_diff_encoders-->
+	<node machine="computer" name="fake_diff_encoders" pkg="rigid2d" type="fake_diff_encoders">
+		<remap from="/turtle1/cmd_vel" to="/cmd_vel"/>			
+		<remap from="joint_states" to="fake/joint_states"/>
+	</node>
+	
+	<!--odometry for the real robot-->
+	<node machine="computer" name="odometer" pkg="rigid2d" type="odometer">
+		<param name="odom_frame_id" type="str" value="odom" />
+		<param name="body_frame_id" type="str" value="base_link" />
+	</node>
+
+	<!--odometry from the fake encoder-->
+	<node machine="computer" name="odometer2" pkg="rigid2d" type="odometer" output="screen" ns="fake">
+		<param name="odom_frame_id" type="str" value="/fake_odom" />
+		<param name="body_frame_id" type="str" value="/fake_base_link" />
+		<remap from="joint_states" to="joint_states"/>
+		<remap from="odom_pub" to="odom"/>
+	</node>
+
+	<!--bind odom with fake_odom-->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_trans" args="0 0 0 0 0 0 1 odom fake_odom" />
+
+	<!--robot_state_publisher-->
+	<node machine="computer" name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+	
+	<!--enable rviz-->
+	<group unless="$(eval arg('robot') ==0)">
+		<node name="rviz" pkg="rviz" type="rviz" args="-d $(find nuturtle_robot)/config/config.rviz" />
+	</group>
+
+	<!-- ros_args.launch -->
+  	<arg name="world_name_me" default="empty_world"/>
+
+	  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  	<include file="$(find gazebo_ros)/launch/$(arg world_name_me).launch">
+		<arg name="world_name" value="$(find nuturtle_gazebo)/worlds/model_push.world"/>
+    <!-- more default parameters can be changed here -->
+  	</include>
+
+	<!-- Convert an xacro and put on parameter server -->
+  	<rosparam file="$(find nuturtle_description)/config/diff_params.yaml" command="load"/>
+	<param name="robot_description" command="$(find xacro)/xacro $(find nuturtle_gazebo)/xacro/diff_drive.gazebo.xacro"/>
+
+	<!-- Spawn a robot into Gazebo -->
+	<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model turtlebot3" />
+</launch>

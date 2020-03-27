@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- ros_args.launch -->
+  	<arg name="robot" default="0" doc="If robot is 0, turtlebot runs the code itself, else, code is run remotely from the computer"/>
+
+	<!--Robot Description from URDF-->
+  	<rosparam file="$(find nuturtle_description)/config/diff_params.yaml" command="load"/>
+	<param name="robot_description" command="$(find xacro)/xacro $(find nuturtle_description)/urdf/diff_drive.urdf.xacro"/>  
+
+	<!--Include basic_remote-->
+	<include file="$(find nuturtle_robot)/launch/basic_remote.launch">
+	  	<arg name="robot" value="$(arg robot)" />
+	</include>
+
+	<!--node turtle_interface-->
+	<node machine="turtlebot" name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface"/>
+
+	<!--node rotation-->
+	<node machine="turtlebot" name="rotation" pkg="nuturtle_robot" type="rotation" output="screen"/>
+
+	<!--node fake_diff_encoders-->
+	<node machine="turtlebot" name="fake_diff_encoders" pkg="rigid2d" type="fake_diff_encoders">
+		<remap from="/turtle1/cmd_vel" to="/cmd_vel"/>			
+		<remap from="joint_states" to="fake/joint_states"/>
+	</node>
+	
+	<!--odometry for the real robot-->
+	<node machine="turtlebot" name="odometer" pkg="rigid2d" type="odometer">
+		<param name="odom_frame_id" type="str" value="odom" />
+		<param name="body_frame_id" type="str" value="base_link" />
+	</node>
+
+	<!--odometry from the fake encoder-->
+	<node machine="turtlebot" name="odometer2" pkg="rigid2d" type="odometer">
+		<param name="odom_frame_id" type="str" value="fake_odom" />
+		<param name="body_frame_id" type="str" value="fake_base_link" />
+		<remap from="joint_states" to="fake/joint_states"/>
+		<remap from="odom_pub" to="fake/odom"/>
+	</node>
+
+	<!--bind odom with fake_odom-->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_trans" args="0 0 0 0 0 0 1 odom fake_odom" />
+
+	<!--robot_state_publisher-->
+	<node machine="turtlebot" name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+	<!--enable rviz-->
+	<group unless="$(eval arg('robot') ==0)">
+		<node name="rviz" pkg="rviz" type="rviz" args="-d $(find nuturtle_robot)/config/config.rviz" />
+	</group>
+
+</launch>

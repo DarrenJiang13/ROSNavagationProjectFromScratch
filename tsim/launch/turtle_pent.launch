@@ -1,0 +1,16 @@
+<launch>
+	<!-- ros_args.launch -->
+  	<arg name="plot_gui" default="true" doc="Launch the rqt_plot gui to plot the value of the pose_error."/>
+
+	<!--node to start-->
+	<node name="turtlesim_node" pkg="turtlesim" type="turtlesim_node"/>
+
+	<node name="turtle_way" pkg="tsim" type="turtle_way" output="screen"/>
+
+	<group if="$(arg plot_gui)">
+		<node name="pose_error_plot" pkg="rqt_plot" type="rqt_plot" args="/pose_error"/>
+	</group>
+
+
+</launch>
+

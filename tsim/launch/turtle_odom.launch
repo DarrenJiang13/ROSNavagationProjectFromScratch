@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>
+	<!--Robot Description from URDF-->
+	<param name="robot_description" command="$(find xacro)/xacro $(find nuturtle_description)/urdf/diff_drive.urdf.xacro"/>  
+
+
+	<include file="$(find tsim)/launch/turtle_pent.launch" />
+
+	<!--node-->
+	<node name="odometer" pkg="rigid2d" type="odometer">
+		<param name="odom_frame_id" type="str" value="odom" />
+		<param name="body_frame_id" type="str" value="base_link" />
+	</node>
+
+	<node name="fake_diff_encoders" pkg="rigid2d" type="fake_diff_encoders"/>
+
+	<!--node to publish-->
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+	<!--Robot Description from URDF-->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find tsim)/config/config.rviz" />
+
+</launch>

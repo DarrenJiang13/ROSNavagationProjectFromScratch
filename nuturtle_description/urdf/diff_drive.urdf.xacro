@@ -1,0 +1,188 @@
+<?xml version="1.0"?>
+<robot name="diff_drive" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- 
+	diff_drive robot links and joints and more.
+	4 Links: base_link,left_wheel,right_wheel,ball_caster 
+	3 Joints: left_wheel_axle, right_wheel_axle, ball_caster_axle
+  -->
+
+	<!--Load properties from another .yaml file-->
+	<xacro:property name="yaml_file" value="$(find nuturtle_description)/config/diff_params.yaml" />
+	<xacro:property name="props" value="${load_yaml(yaml_file)}"/>
+	<xacro:property name="wheel_width" value="${props['wheel_width']}" />
+	<xacro:property name="wheel_radius" value="${props['wheel_radius']}" />
+	<xacro:property name="wheel_base" value="${props['wheel_base']}" />
+	<xacro:property name="chassis_length" value="${props['chassis_length']}" />
+	<xacro:property name="chassis_thickness" value="${props['chassis_thickness']}" />
+	<xacro:property name="wheel_axle_offset" value="${props['wheel_axle_offset']}" />
+	<xacro:property name="caster_radius" value="${0.5*wheel_radius-0.5*wheel_axle_offset}" />
+
+  	<material name="green">
+    		<color rgba="0 0.8 0 1"/>
+  	</material>	
+  	<material name="red">
+    		<color rgba="1 0 0 1"/>
+  	</material>
+  	<material name="blue">
+    		<color rgba="0 0 0.8 1"/>
+  	</material>
+	<material name="black">
+    		<color rgba="0 0 0 1"/>
+  	</material>
+  	<material name="white">
+    		<color rgba="1 1 1 1"/>
+  	</material>
+
+ <link name="map"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="map"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.000" rpy="0 0 0"/>
+  </joint>
+
+	<link name="base_link">
+	    <visual>
+			<geometry>
+				<box size="${chassis_length} ${wheel_base-wheel_width} ${chassis_thickness}"/>
+			</geometry>
+			<origin xyz="${chassis_length/2-wheel_radius} 0 0" rpy="0 0 0" />
+			<material name="white"/>
+	    </visual>
+
+	    <inertial>
+		    <origin xyz="${chassis_length/2-wheel_radius} 0 0" rpy="0 0 0"/>
+		    <mass value="0.94"/>
+		    <inertia ixx="${1/12*0.94*(chassis_thickness*chassis_thickness+chassis_length*chassis_length)}"  ixy="0"  ixz="0"
+  					 iyy="${1/12*0.94*((wheel_base-wheel_width)*(wheel_base-wheel_width)+chassis_thickness*chassis_thickness)}" iyz="0"  
+					 izz="${1/12*0.94*((wheel_base-wheel_width)*(wheel_base-wheel_width)+chassis_length*chassis_length)}" />
+	    </inertial>
+
+		<collision>
+		  <origin xyz="${chassis_length/2-wheel_radius} 0 0.0" rpy="0 0 0"/>
+		  <geometry>
+		    <box size="${chassis_length} ${wheel_base-wheel_width} ${chassis_thickness}"/>
+		  </geometry>
+		</collision>
+	</link>
+
+	<link name="left_wheel">
+	    <visual>
+			<geometry>
+				<cylinder length="${wheel_width}" radius="${wheel_radius}"/>
+			</geometry>
+			<origin xyz="0 0 0" rpy="1.57075 0 0" />
+			<material name="green"/>
+	    </visual>
+
+	    <inertial>
+		    <origin xyz="0 0 0" rpy="1.57075 0 0"/>
+		    <mass value="0.03"/>
+		    <inertia ixx="${1/12*0.03*(3*wheel_radius*wheel_radius+wheel_width*wheel_width)}"  ixy="0"  ixz="0"
+  					 iyy="${1/12*0.03*(3*wheel_radius*wheel_radius+wheel_width*wheel_width)}" iyz="0"
+					 izz="${1/2*0.03*(wheel_radius*wheel_radius)}" />
+	    </inertial>
+
+		<collision>
+		  <origin xyz="0 0 0.0" rpy="1.57075 0 0"/>
+		  <geometry>
+		    <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
+		  </geometry>
+		</collision>
+	</link>
+
+	<joint name="left_wheel_axle" type="continuous">
+		<parent link="base_link"/>
+		<child link="left_wheel"/>
+		<origin xyz="0 ${wheel_base*0.5} ${-0.5*chassis_thickness+wheel_axle_offset}"/>
+		<axis xyz="0 1 0" rpy="0 0 0" />
+  	</joint>
+
+	<link name="right_wheel">
+	    <visual>
+			<geometry>
+				<cylinder length="${wheel_width}" radius="${wheel_radius}"/>
+			</geometry>
+			<origin xyz="0 0 0" rpy="-1.57075 0 0" />
+			<material name="green"/>
+	    </visual>
+
+	    <inertial>
+		    <origin xyz="0 0 0" rpy="-1.57075 0 0"/>
+		    <mass value="0.03"/>
+		    <inertia ixx="${1/12*0.03*(3*wheel_radius*wheel_radius+wheel_width*wheel_width)}"  ixy="0"  ixz="0"
+					 iyy="${1/12*0.03*(3*wheel_radius*wheel_radius+wheel_width*wheel_width)}" iyz="0"
+					 izz="${1/2*0.03*(wheel_radius*wheel_radius)}" />
+	    </inertial>
+
+		<collision>
+		  <origin xyz="0 0 0.0" rpy="-1.57075 0 0"/>
+		  <geometry>
+		    <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
+		  </geometry>
+		</collision>
+
+	</link>
+
+	<joint name="right_wheel_axle" type="continuous">
+		<parent link="base_link"/>
+		<child link="right_wheel"/>
+		<origin xyz="0 ${wheel_base*(-0.5)} ${-0.5*chassis_thickness+wheel_axle_offset}"/>
+		<axis xyz="0 1 0" rpy="0 0 0" />
+  	</joint>
+
+	<link name="ball_caster">
+	    <visual>
+			<geometry>
+				<sphere radius="${caster_radius}"/>
+			</geometry>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<material name="blue"/>
+	    </visual>
+
+		<collision>
+		  <origin xyz="0 0 0.0" rpy="0 0 0"/>
+		  <geometry>
+		       <sphere radius="${caster_radius}"/>
+		  </geometry>
+		</collision>
+
+	</link>
+
+	<joint name="ball_caster_axle" type="fixed">
+		<parent link="base_link"/>
+		<child link="ball_caster"/>
+		<origin xyz="${chassis_length-wheel_radius-caster_radius} 0 ${-caster_radius-0.5*chassis_thickness}"/>
+		<axis xyz="0 1 0" rpy="0 0 0" />
+  	</joint>
+
+	<joint name="base_scan_axle" type="fixed">
+		<parent link="base_link"/>
+		<child link="base_scan"/>
+		<origin xyz="${0.5*chassis_length-wheel_radius} 0 ${chassis_thickness*0.5+0.027/2}"/>
+		<axis xyz="0 0 0" rpy="0 0 0" />
+  	</joint>
+
+	<link name="base_scan">
+	    <visual>
+	      <geometry>
+			<cylinder length="0.03" radius="0.05"/>
+		  </geometry>
+		  <origin xyz="0 0 0" rpy="0 0 0" />
+		  <material name="black"/>
+	    </visual>
+        <collision>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <cylinder length="0.0315" radius="0.055"/>
+          </geometry>
+        </collision>
+        <inertial>
+          <mass value="0.114" />
+          <origin xyz="0 0 0" />
+          <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+                   iyy="0.001" iyz="0.0"
+                   izz="0.001" />
+        </inertial>
+	</link>
+</robot>

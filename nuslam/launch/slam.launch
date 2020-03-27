@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- arg robot -->
+  	<arg name="robot" default="-1" doc="If robot is 0, turtlebot runs the code itself, else, code is run remotely from the computer"/>
+		<arg name="world_name" default="$(find nuturtlebot)/worlds/block.world"/>
+		<arg name="debug" default="false"/>
+
+	<!--Robot Description from URDF-->
+  <rosparam file="$(find nuturtle_description)/config/diff_params.yaml" command="load"/>
+
+	<!--Include basic_remote-->
+	<include file="$(find nuturtle_robot)/launch/basic_remote.launch">
+	  	<arg name="robot" value="$(arg robot)" />
+	</include>
+
+	<!--node turtle_interface-->
+	<node machine="computer" name="turtle_interface" pkg="nuturtle_robot" type="turtle_interface"/>
+
+	<!--odometry for the real robot-->
+	<node machine="computer" name="odometer" pkg="rigid2d" type="odometer">
+		<param name="odom_frame_id" type="str" value="odom" />
+		<param name="body_frame_id" type="str" value="odom_base_link" />
+	</node>
+
+	<!--bind odom with fake_odom-->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_trans" args="0 0 0 0 0 0 1 odom map" />
+
+	<!--robot_state_publisher-->
+	<node machine="computer" name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+	<node machine="computer" name="teleop_twist_keyboard" pkg="turtlebot3_teleop" type="turtlebot3_teleop_key"/>
+
+	<!--enable rviz-->
+	<group unless="$(eval arg('robot') ==0)">
+		<node name="rviz" pkg="rviz" type="rviz" args="-d $(find nuslam)/config/config.rviz" />
+	</group>
+
+	<!-- ros_args.launch -->
+	<group if="$(eval arg('robot') ==-1)">
+		<!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+		<include file="$(find gazebo_ros)/launch/empty_world.launch">
+				 <arg name="world_name" value="$(arg world_name)"/>
+		<!-- more default parameters can be changed here -->
+		</include>
+
+		<!-- Convert an xacro and put on parameter server -->
+		<rosparam file="$(find nuturtle_description)/config/diff_params.yaml" command="load"/>
+		<param name="robot_description" command="$(find xacro)/xacro --inorder $(find nuturtle_gazebo)/xacro/diff_drive.gazebo.xacro"/>
+
+		<!-- Spawn a robot into Gazebo -->
+		<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model turtlebot3" />
+	
+		<group if="$(arg debug)">
+			<node name="slam_debug" pkg="nuslam" type="slam" output="screen">
+					<remap from="landmarks" to="real/landmarks"/>
+					<remap from="trajectory" to="slam/trajectory"/>
+					<param name="odom_frame_id" type="str" value="map" />
+					<param name="body_frame_id" type="str" value="base_link" />
+			</node>
+			<node name="draw_map" pkg="nuslam" type="draw_map">
+					<remap from="landmarks" to="real/landmarks"/>
+					<param name="base_frame_id" type="str" value="base_link"/>
+			</node>
+		</group>
+
+		<group unless="$(arg debug)">
+			<node name="slam" pkg="nuslam" type="slam" output="screen">
+					<remap from="trajectory" to="slam/trajectory"/>
+					<param name="odom_frame_id" type="str" value="map" />
+					<param name="body_frame_id" type="str" value="base_link" />
+			</node>
+			<node name="draw_map" pkg="nuslam" type="draw_map">
+					<param name="base_frame_id" type="str" value="base_link"/>
+			</node>
+		</group>
+
+		<node name="landmarks" pkg="nuslam" type="landmarks" output="screen"/>
+
+		<node name="analysis" pkg="nuslam" type="analysis" output="screen" ns="real">
+				<param name="radius" type="double" value="0.8" />
+				<param name="noise" type="double" value="0.3" />
+		</node>
+
+	</group>
+
+</launch>

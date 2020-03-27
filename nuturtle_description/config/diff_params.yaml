@@ -1,0 +1,29 @@
+# "diff_params.yaml"
+# Author: Yujie Jiang
+# Last Update: 2020.01.09
+# The parameters describe the geometry of the robot.
+
+# Parameters description:
+# 	wheel_width: The width of the wheels
+# 	wheel_radius: The radius of the wheels
+# 	wheel_base: The distance between the centers wheels
+# 	chassis_length: The length of the main chassis link
+# 	chassis_thickness: The thickness of the plate that forms the chassis
+#   wheel_axle_offset: The wheel axle should be 2cm from the bottom of the chassis
+#	encoder_ticks_per_rev: the number of encoder ticks per revolution of the wheels.
+#	max_trans_robot: maximum translational velocity of the robot in m/s
+#	max_rot_robot: maximum rotational velocity of the robot, in rad/s
+#	max_rot_motor: maximum rotational velocity of the motor, in rad/s
+#	max_motor_power:  maximum motor power (motor speeds are integers between -265 to 265)
+
+wheel_width: 0.018
+wheel_radius: 0.033
+wheel_base: 0.16
+chassis_length: 0.138
+chassis_thickness: 0.14
+wheel_axle_offset: 0.02
+encoder_ticks_per_rev: 4096
+max_trans_robot: 0.22
+max_rot_robot: 2.84
+max_rot_motor: 6.35492
+max_motor_power: 14.43

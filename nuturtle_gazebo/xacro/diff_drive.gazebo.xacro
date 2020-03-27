@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<robot name="diff_drive" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- 
+	diff_drive robot links and joints and more.
+	4 Links: base_link,left_wheel,right_wheel,ball_caster 
+	3 Joints: left_wheel_axle, right_wheel_axle, ball_caster_axle
+  -->
+
+<!--Load properties from another .yaml file-->
+
+    <xacro:property name="yaml_file" value="$(find nuturtle_description)/config/diff_params.yaml" />
+    <xacro:property name="encoder_ticks_per_rev" value="${props['encoder_ticks_per_rev']}" />
+    <xacro:property name="props" value="${load_yaml(yaml_file)}"/>
+    <xacro:property name="max_trans_robot" value="${props['max_trans_robot']}" />
+    <xacro:property name="max_rot_robot" value="${props['max_rot_robot']}" />
+    <xacro:property name="max_rot_motor" value="${props['max_rot_motor']}" />
+
+    <xacro:include filename="$(find nuturtle_description)/urdf/diff_drive.urdf.xacro" />
+
+    <gazebo reference="base_link">
+        <material>Gazebo/Orange</material>
+    </gazebo>
+
+    <gazebo reference="left_wheel">
+		<mu1>1000</mu1>
+		<mu2>1000</mu2>
+		<kp>500000.0</kp>
+		<kd>10.0</kd>
+		<maxVel>0.1</maxVel>
+		<material>Gazebo/FlatBlack</material>
+    </gazebo>
+
+    <gazebo reference="right_wheel">
+		<mu1>1000</mu1>
+		<mu2>1000</mu2>
+		<kp>500000.0</kp>
+		<kd>10.0</kd>
+		<maxVel>0.1</maxVel>
+		<material>Gazebo/FlatBlack</material>
+    </gazebo>
+
+    <gazebo reference="ball_caster">
+		<mu1>0.1</mu1>
+		<mu2>0.1</mu2>
+		<kp>1000000.0</kp>
+		<kd>100.0</kd>
+		<minDepth>0.001</minDepth>
+		<maxVel>1.0</maxVel>
+		<material>Gazebo/FlatBlack</material>
+    </gazebo>
+
+    <gazebo reference="base_scan">
+      <material>Gazebo/FlatBlack</material>
+        <sensor type="gpu_ray" name="lds_lfcd_sensor">
+        <pose>0 0 0 0 0 0</pose>
+        <visualize>true</visualize>
+        <update_rate>5</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <resolution>1</resolution>
+              <min_angle>0.0</min_angle>
+              <max_angle>6.28319</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.120</min>
+            <max>3.5</max>
+            <resolution>0.015</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+        <plugin name="gazebo_ros_lds_lfcd_controller" filename="libgazebo_ros_gpu_laser.so">
+          <topicName>scan</topicName>
+          <frameName>base_scan</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+    <gazebo>
+		<plugin name="nuturtle_gazebo_plugin" filename="libnuturtle_gazebo_plugin.so">
+	 		<left_wheel_joint>left_wheel_axle</left_wheel_joint>
+			<right_wheel_joint>right_wheel_axle</right_wheel_joint>
+			<sensor_frequency>200</sensor_frequency>
+			<wheel_cmd_topic>wheel_cmd</wheel_cmd_topic>
+		    <sensor_data_topic>sensor_data</sensor_data_topic>
+		    <encoder_ticks_per_rev>${encoder_ticks_per_rev}</encoder_ticks_per_rev>
+			<max_trans_robot>${max_trans_robot}</max_trans_robot>
+			<max_rot_robot>${max_rot_robot}</max_rot_robot>
+			<max_rot_motor>${max_rot_motor}</max_rot_motor>
+		</plugin>
+    </gazebo>
+
+</robot>

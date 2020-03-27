@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<launch>
+	<!-- ros_args.launch -->
+  	<arg name="use_jsp_gui" default="true" doc="Launch the joint_state_publisher gui to publish joint angles."/>
+
+	<!--Robot Description from URDF-->
+	<param name="robot_description" command="$(find xacro)/xacro $(find nuturtle_description)/urdf/diff_drive.urdf.xacro"/>  
+	
+	<!--node to publish-->
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+	<!--Robot Description from URDF-->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find nuturtle_description)/config/config.rviz" />
+
+	<!--if use_jsp_gui is true, enable the gui-->	
+	<!-- if there is a 'joint-state-publisher-gui' problem, run sudo apt-get install ros-melodic-joint-state-publisher-gui -->
+	<group if="$(arg use_jsp_gui)">
+	  	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        		<param name="use_gui" value="true"/>
+		</node>
+	</group>
+
+
+</launch>

@@ -1,0 +1,5 @@
+<launch>
+	<!--node to start-->
+ 	<test test-name="nuslam_test" pkg="nuslam" type="nuslam_test" />
+</launch>
+
