@@ -8,7 +8,7 @@ Author: Yujie Jiang
 Mail: yujiejiang2020@u.northwestern.edu
 
 # Video here:
-<iframe height=1024 width=768 src="https://raw.githubusercontent.com/DarrenJiang13/ROSNavagationProjectFromScratch/master/nuturtle_robot/Turtlebot3%20burger%20navigation.mp4">
+Please download the [video](https://raw.githubusercontent.com/DarrenJiang13/ROSNavagationProjectFromScratch/master/nuturtle_robot/Turtlebot3%20burger%20navigation.mp4)
 
 # How to run rostest:
 In this homework, we only need to test turtle_interface  
