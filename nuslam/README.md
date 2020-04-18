@@ -1,6 +1,6 @@
 # ROS Package : nuslam
 
-**Package Description**: this package aims to descript the urdf of the mobile robot.
+**Package Description**: this package aims to implement the ekf-slam of the robot in gazebo world
 
 **Author**: Yujie Jiang
 

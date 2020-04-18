@@ -1,7 +1,7 @@
 # ROS Package: tsim
 Package Name: tsim
 
-Package Description: this package aims to descript the move of the mobile robot.
+Package Description: this package aims to drive the mobile robot in turtle sim package.
 
 Author: Yujie Jiang
 
@@ -45,19 +45,6 @@ Mail: yujiejiang2020@u.northwestern.edu
 	-PoseError.msg: define a new type of message called PoseError. 
     
     -others: not use yet.
-    
-    
-# Screenshot of the turtle:
-<figure>
-<center>
-<img src='https://raw.githubusercontent.com/DarrenJiang13/Kalman-Filter/master/photo_turtle.png' />
-</figure>
-
-# Screenshot of rqt_plot:
-<figure>
-<center>
-<img src='https://raw.githubusercontent.com/DarrenJiang13/Kalman-Filter/master/image.png' />
-</figure>
 
 # Turtle Video:
 https://www.youtube.com/watch?v=teoYJjwd2vc&feature=youtu.be

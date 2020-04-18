@@ -1,7 +1,7 @@
 # ROS Package: nuturtle_robot
 Package Name: nuturtle_robot
 
-Package Description: this package aims to control real turtlebot
+Package Description: this package aims to control real turtlebot3-Burger through ROS
 
 Author: Yujie Jiang
 
