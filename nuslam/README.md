@@ -2,7 +2,9 @@
 
 **Package Description**: this package aims to implement the ekf-slam of the robot in gazebo world
 
-**Author**: Yujie Jiang
+**Author**: Yujie Jiang  
+
+![image](https://github.com/DarrenJiang13/ROSNavagationProjectFromScratch/blob/master/nuslam/slam_view.png)
 
 # To run the TASK L.002 in rviz:
     source devel/setup.bash
